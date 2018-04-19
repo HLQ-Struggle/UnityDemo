@@ -1,0 +1,54 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 26
+
+    defaultConfig {
+        minSdkVersion 22
+        targetSdkVersion 26
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.1'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+    implementation files('libs/classes.jar')
+}
+
+// 定义SDK包名称
+def SDK_BASENAME = "AndroidPlugin"
+// 定义SDK包版本
+def SDK_VERSION = "_V1.0.0"
+// SDK包生成地址
+def SDK_PATH = "build/libs"
+// 删除之前的Jar包 保证每一次生成的都是最新的
+task deleteOldJar(type: Delete) {
+    delete SDK_PATH + SDK_BASENAME + SDK_VERSION + '.jar'
+}
+task exportJar(type: Copy) {
+    // 从源地址拷贝
+    from('build/intermediates/packaged-classes/release/')
+    // 存放
+    into(SDK_PATH)
+    // 导入
+    include('classes.jar')
+    // 重命名
+    rename('classes.jar', SDK_BASENAME + SDK_VERSION + '.jar')
+}
+// 执行脚本文件
+exportJar.dependsOn(deleteOldJar, build)
